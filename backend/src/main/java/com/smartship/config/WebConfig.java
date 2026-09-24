@@ -17,6 +17,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         // Redirect root to index.html
-        registry.addRedirectViewController("/", "/index.html");
+        registry.addRedirectViewController("/", "/home.html");
     }
 }
