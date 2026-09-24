@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartShip — Transparent Transport Bidding</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f4ff;
+      color: #0f172a;
+      min-height: 100vh;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 64px;
+      background: #ffffff;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 0 2.5rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+      z-index: 100;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 800; font-size: 1.3rem;
+      color: #0f172a; text-decoration: none;
+    }
+    .brand .icon {
+      width: 36px; height: 36px;
+      background: #2563eb;
+      border-radius: 8px;
+      display: flex; align-items: center;
+      justify-content: center; font-size: 18px;
+    }
+    .brand span { color: #2563eb; }
+    .nav-links { display: flex; gap: 0.75rem; align-items: center; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center;
+      gap: 6px; padding: 10px 22px;
+      border-radius: 8px; border: none;
+      font-family: inherit; font-size: 0.9rem;
+      font-weight: 600; cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,99,235,0.35); }
+    .btn-outline { background: transparent; color: #2563eb; border: 2px solid #2563eb; }
+    .btn-outline:hover { background: #2563eb; color: #fff; }
+    .btn-ghost { background: transparent; color: #64748b; border: 1px solid rgba(0,0,0,0.12); }
+    .btn-ghost:hover { color: #2563eb; border-color: #2563eb; }
+    .btn-lg { padding: 14px 32px; font-size: 1rem; border-radius: 10px; }
+    .btn-customer { background: #2563eb; color: #fff; }
+    .btn-customer:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37,99,235,0.35); }
+    .btn-shipper { background: #059669; color: #fff; }
+    .btn-shipper:hover { background: #047857; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(5,150,105,0.35); }
+    .btn-admin { background: #7c3aed; color: #fff; }
+    .btn-admin:hover { background: #6d28d9; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,58,237,0.35); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 140px 2rem 80px;
+      text-align: center;
+      display: flex; flex-direction: column;
+      align-items: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(37,99,235,0.1);
+      color: #2563eb;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(37,99,235,0.2);
+    }
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.15;
+      color: #0f172a;
+      margin-bottom: 1.2rem;
+      letter-spacing: -0.02em;
+    }
+    .hero h1 span { color: #2563eb; }
+    .hero p {
+      font-size: 1.1rem;
+      color: #64748b;
+      max-width: 580px;
+      line-height: 1.8;
+      margin-bottom: 2.5rem;
+    }
+    .hero-buttons {
+      display: flex; gap: 1rem;
+      flex-wrap: wrap; justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .hero-note {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-bottom: 4rem;
+    }
+
+    /* ── STATS ── */
+    .stats {
+      display: flex; gap: 3rem;
+      flex-wrap: wrap; justify-content: center;
+      margin-bottom: 5rem;
+    }
+    .stat { text-align: center; }
+    .stat-value {
+      font-size: 2rem; font-weight: 800;
+      color: #2563eb;
+    }
+    .stat-label { font-size: 0.82rem; color: #94a3b8; margin-top: 2px; }
+
+    /* ── HOW IT WORKS ── */
+    .section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+    }
+    .section-sub {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.95rem;
+      margin-bottom: 3rem;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+    .step {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 14px;
+      padding: 1.75rem;
+      text-align: center;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .step:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(37,99,235,0.1); }
+    .step-num {
+      width: 40px; height: 40px;
+      background: #2563eb;
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center;
+      justify-content: center;
+      font-weight: 800; font-size: 1rem;
+      margin: 0 auto 1rem;
+    }
+    .step h3 { font-size: 1rem; color: #0f172a; margin-bottom: 6px; }
+    .step p  { font-size: 0.82rem; color: #64748b; line-height: 1.6; }
+
+    /* ── FEATURES ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+    .feature {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 14px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+      display: flex; gap: 1rem; align-items: flex-start;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(37,99,235,0.08); }
+    .feature-icon {
+      width: 44px; height: 44px; min-width: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center;
+      justify-content: center; font-size: 1.3rem;
+    }
+    .f-blue   { background: rgba(37,99,235,0.1); }
+    .f-green  { background: rgba(5,150,105,0.1); }
+    .f-purple { background: rgba(124,58,237,0.1); }
+    .f-amber  { background: rgba(245,158,11,0.1); }
+    .f-red    { background: rgba(220,38,38,0.08); }
+    .f-teal   { background: rgba(20,184,166,0.1); }
+    .feature h3 { font-size: 0.95rem; color: #0f172a; margin-bottom: 4px; }
+    .feature p  { font-size: 0.8rem;  color: #64748b; line-height: 1.6; }
+
+    /* ── DEMO SECTION ── */
+    .demo-section {
+      background: #fff;
+      border-radius: 20px;
+      border: 1px solid rgba(0,0,0,0.08);
+      padding: 3rem 2rem;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      max-width: 860px;
+      margin: 0 auto 5rem;
+    }
+    .demo-section h2 {
+      font-size: 1.8rem; font-weight: 800;
+      color: #0f172a; margin-bottom: 0.5rem;
+    }
+    .demo-section p {
+      color: #64748b; font-size: 0.9rem;
+      margin-bottom: 2.5rem;
+    }
+    .demo-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .demo-card {
+      border-radius: 14px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .demo-card.c { background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.2); }
+    .demo-card.s { background: rgba(5,150,105,0.06); border: 1px solid rgba(5,150,105,0.2); }
+    .demo-card.a { background: rgba(124,58,237,0.06); border: 1px solid rgba(124,58,237,0.2); }
+    .demo-card .role-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .demo-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .demo-card.c h3 { color: #2563eb; }
+    .demo-card.s h3 { color: #059669; }
+    .demo-card.a h3 { color: #7c3aed; }
+    .cred {
+      background: rgba(0,0,0,0.04);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      color: #334155;
+      margin-bottom: 1rem;
+      font-family: 'Consolas', monospace;
+      text-align: left;
+    }
+    .cred span { color: #64748b; }
+
+    /* ── ROLES ── */
+    .roles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .role-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 1.75rem;
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    }
+    .role-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .role-badge {
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 700;
+    }
+    .rb-c { background: rgba(37,99,235,0.1);  color: #2563eb; }
+    .rb-s { background: rgba(5,150,105,0.1);  color: #059669; }
+    .rb-a { background: rgba(124,58,237,0.1); color: #7c3aed; }
+    .role-card ul { list-style: none; padding: 0; }
+    .role-card ul li {
+      font-size: 0.85rem; color: #64748b;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .role-card ul li:last-child { border-bottom: none; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #0f172a;
+      color: #94a3b8;
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.82rem;
+    }
+    footer span { color: #2563eb; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: rgba(0,0,0,0.07);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    @media(max-width: 640px) {
+      .hero h1 { font-size: 2.2rem; }
+      .navbar { padding: 0 1rem; }
+      .section { padding: 3rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+  <a class="brand" href="/home.html">
+    <div class="icon">🚚</div>
+    Smart<span>Ship</span>
+  </a>
+  <div class="nav-links">
+    <a href="/index.html" class="btn btn-ghost" style="padding:8px 18px;font-size:0.85rem">Login</a>
+    <a href="/index.html" class="btn btn-primary" style="padding:8px 18px;font-size:0.85rem" onclick="sessionStorage.setItem('openTab','register')">Register</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-badge">🏆 Reverse Auction Bidding Platform</div>
+  <h1>Transport Smarter<br/>with <span>SmartShip</span></h1>
+  <p>
+    Post your delivery request and let multiple shippers compete
+    to give you the best price and fastest delivery time —
+    all bids visible to everyone in real time.
+  </p>
+  <div class="hero-buttons">
+    <button class="btn btn-lg btn-customer" onclick="demoLogin('john_customer','admin123','CUSTOMER')">
+      📦 Try as Customer
+    </button>
+    <button class="btn btn-lg btn-shipper" onclick="demoLogin('swift_ship','admin123','SHIPPER')">
+      🚛 Try as Shipper
+    </button>
+    <button class="btn btn-lg btn-admin" onclick="demoLogin('admin','admin123','ADMIN')">
+      🔑 Try as Admin
+    </button>
+  </div>
+  <div class="hero-note">✨ One click demo — no registration needed</div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value">3</div>
+      <div class="stat-label">User Roles</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">2s</div>
+      <div class="stat-label">Live Bid Refresh</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">100%</div>
+      <div class="stat-label">Bid Transparency</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">JWT</div>
+      <div class="stat-label">Secure Auth</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── HOW IT WORKS ── -->
+<div class="section">
+  <div class="section-title">How It Works</div>
+  <div class="section-sub">Simple 4-step process from request to delivery</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Post a Request</h3>
+      <p>Customer posts a transport request with pickup, drop, item details and budget</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Shippers Bid</h3>
+      <p>Multiple shippers compete by placing bids with price and delivery time</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Compare Bids</h3>
+      <p>All bids are visible to everyone in real time — lowest bid is highlighted</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h3>Award Winner</h3>
+      <p>Customer selects the best bid and a confirmed order is created automatically</p>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── FEATURES ── -->
+<div class="section">
+  <div class="section-title">Key Features</div>
+  <div class="section-sub">Everything built for a fair and transparent marketplace</div>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon f-blue">👁️</div>
+      <div>
+        <h3>Full Transparency</h3>
+        <p>Every bid is visible to all participants — customers and shippers alike</p>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon f-green">⚡</div>
+      <div>
+        <h3>Real Time Bidding</h3>
+        <p>Bid table auto-refreshes every 2 seconds using JavaScript polling</p>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon f-amber">💰</div>
+      <div>
+        <h3>Competitive Pricing</h3>
+        <p>Reverse auction drives prices down — customer always gets the best deal</p>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon f-red">🔐</div>
+      <div>
+        <h3>JWT Security</h3>
+        <p>Secure authentication with role-based access control on every endpoint</p>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon f-purple">🏆</div>
+      <div>
+        <h3>Outbid Alerts</h3>
+        <p>Shippers instantly see when they are outbid and can place a new lower bid</p>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon f-teal">📋</div>
+      <div>
+        <h3>Order Management</h3>
+        <p>Winning bid auto-creates a confirmed order with full history tracking</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── USER ROLES ── -->
+<div class="section">
+  <div class="section-title">User Roles</div>
+  <div class="section-sub">Three distinct roles with separate dashboards</div>
+  <div class="roles">
+    <div class="role-card">
+      <div class="role-header">
+        <span style="font-size:1.5rem">📦</span>
+        <span class="role-badge rb-c">Customer</span>
+      </div>
+      <ul>
+        <li>✅ Post transport requests</li>
+        <li>✅ View all bids in real time</li>
+        <li>✅ See lowest bid highlighted</li>
+        <li>✅ Select winning bid</li>
+        <li>✅ View order history</li>
+      </ul>
+    </div>
+    <div class="role-card">
+      <div class="role-header">
+        <span style="font-size:1.5rem">🚛</span>
+        <span class="role-badge rb-s">Shipper</span>
+      </div>
+      <ul>
+        <li>✅ Browse open transport requests</li>
+        <li>✅ Place competitive bids</li>
+        <li>✅ See all competing bids</li>
+        <li>✅ Get outbid alerts instantly</li>
+        <li>✅ View won orders</li>
+      </ul>
+    </div>
+    <div class="role-card">
+      <div class="role-header">
+        <span style="font-size:1.5rem">🔑</span>
+        <span class="role-badge rb-a">Admin</span>
+      </div>
+      <ul>
+        <li>✅ View all registered users</li>
+        <li>✅ Monitor all requests</li>
+        <li>✅ View all bids placed</li>
+        <li>✅ View all confirmed orders</li>
+        <li>✅ Full platform oversight</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── DEMO CREDENTIALS ── -->
+<div class="section">
+  <div class="demo-section">
+    <h2>🚀 Try the Demo</h2>
+    <p>Click any role below to instantly login and explore the platform</p>
+    <div class="demo-cards">
+      <div class="demo-card c">
+        <div class="role-icon">📦</div>
+        <h3>Customer</h3>
+        <div class="cred">
+          <span>Username:</span> john_customer<br/>
+          <span>Password:</span> admin123
+        </div>
+        <button class="btn btn-customer" style="width:100%" onclick="demoLogin('john_customer','admin123','CUSTOMER')">
+          Login as Customer →
+        </button>
+      </div>
+      <div class="demo-card s">
+        <div class="role-icon">🚛</div>
+        <h3>Shipper</h3>
+        <div class="cred">
+          <span>Username:</span> swift_ship<br/>
+          <span>Password:</span> admin123
+        </div>
+        <button class="btn btn-shipper" style="width:100%" onclick="demoLogin('swift_ship','admin123','SHIPPER')">
+          Login as Shipper →
+        </button>
+      </div>
+      <div class="demo-card a">
+        <div class="role-icon">🔑</div>
+        <h3>Admin</h3>
+        <div class="cred">
+          <span>Username:</span> admin<br/>
+          <span>Password:</span> admin123
+        </div>
+        <button class="btn btn-admin" style="width:100%" onclick="demoLogin('admin','admin123','ADMIN')">
+          Login as Admin →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TECH STACK ── -->
+<div class="section" style="padding-top:0">
+  <div class="section-title">Tech Stack</div>
+  <div class="section-sub">Built with modern full stack technologies</div>
+  <div style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:center">
+    <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:12px 24px;font-size:0.85rem;font-weight:600;color:#0f172a;box-shadow:0 1px 4px rgba(0,0,0,0.05)">☕ Java Spring Boot</div>
+    <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:12px 24px;font-size:0.85rem;font-weight:600;color:#0f172a;box-shadow:0 1px 4px rgba(0,0,0,0.05)">🔐 Spring Security + JWT</div>
+    <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:12px 24px;font-size:0.85rem;font-weight:600;color:#0f172a;box-shadow:0 1px 4px rgba(0,0,0,0.05)">🗄️ MySQL + JPA/Hibernate</div>
+    <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:12px 24px;font-size:0.85rem;font-weight:600;color:#0f172a;box-shadow:0 1px 4px rgba(0,0,0,0.05)">🌐 HTML + CSS + Vanilla JS</div>
+    <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:12px 24px;font-size:0.85rem;font-weight:600;color:#0f172a;box-shadow:0 1px 4px rgba(0,0,0,0.05)">🔄 REST API</div>
+    <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:12px 24px;font-size:0.85rem;font-weight:600;color:#0f172a;box-shadow:0 1px 4px rgba(0,0,0,0.05)">⚡ Real Time Polling</div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div style="font-size:1.1rem;font-weight:800;margin-bottom:6px">
+    🚚 Smart<span>Ship</span>
+  </div>
+  <div>Transparent Transport Bidding System</div>
+  <div style="margin-top:8px;font-size:0.75rem;color:#475569">
+    Built with Java Spring Boot · MySQL · Vanilla JavaScript
+  </div>
+</footer>
+
+<script>
+  // If already logged in redirect to dashboard
+  const token = localStorage.getItem('smartship_token');
+  const user  = JSON.parse(localStorage.getItem('smartship_user') || '{}');
+  if (token && user.role) {
+    if      (user.role === 'CUSTOMER') location.href = '/customer-dashboard.html';
+    else if (user.role === 'SHIPPER')  location.href = '/shipper-dashboard.html';
+    else if (user.role === 'ADMIN')    location.href = '/admin-dashboard.html';
+  }
+
+  // One click demo login
+  async function demoLogin(username, password, role) {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Login failed');
+
+      localStorage.setItem('smartship_token', data.token);
+      localStorage.setItem('smartship_user',  JSON.stringify(data));
+
+      if      (role === 'CUSTOMER') location.href = '/customer-dashboard.html';
+      else if (role === 'SHIPPER')  location.href = '/shipper-dashboard.html';
+      else if (role === 'ADMIN')    location.href = '/admin-dashboard.html';
+    } catch(e) {
+      alert('Login failed: ' + e.message);
+    }
+  }
+</script>
+</body>
+</html>
